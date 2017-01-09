@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Input;
 
 class ActivityController extends Controller
 {
@@ -13,8 +13,12 @@ class ActivityController extends Controller
      */
     public function all()
     {
-        $raw_data = $this->sendRequest('GET', '/activity');
-        $html = view('activity.all')->with('events', $raw_data->event)->render();
+        $project = Input::get('project') ? : '';
+        $raw_data = $this->sendRequest('GET', $project.'/activity');
+        $events = $raw_data->event;
+
+        $html = view('activity.all')->with('events', $events)->render();
+
         return response()->json([
             'raw_data' => $raw_data,
             'html' => $html

@@ -8,8 +8,8 @@
 	 * display.
 	 * @type {{rawData, init, getID, notInitialized, render}}
 	 */
-	var ActivityWidget = (function(){
-
+	// function CodebaseWidget(project, apiEndpoint, refreshRate){
+	redeye.codebaseStatsManager.CodebaseWidget = function(options){
 		// Helpers
 		var context;
 		var interval;
@@ -19,9 +19,11 @@
 		var initialized = false;
 
 		// Params
-		var refreshAfter = 1000 * 60 * 15; //milliseconds
-		var id = 'activity-widget';
-		var codebaseEndpoint = '/api/activity/all';
+		var widgetName = options.name;
+		var refreshAfter = 1000 * 60 * options.refreshRate; //milliseconds
+		var id = 'widget' + options.endpoint.replace(/\//g, '-') + '-' + Date.now().toString();
+		var codebaseEndpoint = '/api' + options.endpoint;
+		var forProject = options.project ? options.project : '';
 
 		// Exposed methods
 		return {
@@ -96,7 +98,10 @@
 			logDebug('Getting latest data for /api/activity/all');
 
 			$.ajax(codebaseEndpoint, {
-				'method': 'GET'
+				'method': 'GET',
+				'data': {
+					'project': forProject
+				}
 			}).done(function(data){
 				context.rawData = data.raw_data;
 				context.html = data.html;
@@ -136,7 +141,7 @@
 		{
 			return '<div class="panel panel-primary">' +
 				'<div class="panel-heading">' +
-				'<h3 class="panel-title">Codebase Activity</h3>' +
+				'<h3 class="panel-title">' + widgetName + '</h3>' +
 				'</div>' +
 				'<div class="panel-body">' +
 					'<br><div class="progress progress-striped active">' +
@@ -155,11 +160,13 @@
 			if (debug) console.dir('ActivityWidget:' + message)
 		}
 
-	})();
+	}
 
 	// Ready-set-go
 	$(document).ready(function() {
 		// Add widget to manager
-		redeye.codebaseStatsManager.addWidget(ActivityWidget);
+		// redeye.codebaseStatsManager.addWidget(new CodebaseWidget('API', '/activity/all', 10));
+		// redeye.codebaseStatsManager.addWidget(new CodebaseWidget('Contour', '/activity/all', 10));
+		// redeye.codebaseStatsManager.addWidget(new CodebaseWidget('Contour', '/activity/all', 10));
 	});
 })();

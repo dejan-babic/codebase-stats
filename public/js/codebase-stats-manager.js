@@ -14,6 +14,7 @@ redeye.codebaseStatsManager = (function(){
 	var context;
 	var widgets;
 	var containerElement;
+	var titleElement;
 
 	// Flags
 	var debug = true;
@@ -21,6 +22,23 @@ redeye.codebaseStatsManager = (function(){
 
 	// Parameters
 	var addWidgetEvent = 'csm-widget-added';
+
+	// General config object
+	var screens = [
+		{
+			name: 'API Project',
+
+			widgets:[
+				{
+					name: 'Activity', // Name to display on widget
+					endpoint: '/activity/all', // Endpoint on laravel app (Codebase API Wrapper)
+					project: 'API', // Additional data sent to laravel app (Codebase API Wrapper)
+					refreshRate: 1 // Minutes for widget auto refresh
+				}
+			]
+		}
+	];
+
 
 	// Exposed methods
 	return {
@@ -40,6 +58,8 @@ redeye.codebaseStatsManager = (function(){
 				createWidgetContainer();
 				wireDOM();
 				registerListeners();
+				startScreenSwitcher();
+				
 				// Everything finished successfully, flag as initialized
 				initialized = true;
 			}
@@ -111,17 +131,6 @@ redeye.codebaseStatsManager = (function(){
 	}
 
 	/**
-	 * Update DOM instance of the widget
-	 * @param element
-	 * @param html
-	 */
-	function updateBox(element, html)
-	{
-		logDebug('Updating box ' + element.id);
-		$(element).html(html);
-	}
-
-	/**
 	 * Create app container for widgets
 	 */
 	function createWidgetContainer()
@@ -138,7 +147,10 @@ redeye.codebaseStatsManager = (function(){
 		logDebug('Wiring DOM Elements');
 
 		containerElement = $('#widget-container');
-		if (!containerElement.length) throw "Can't find DOM element for rendering";
+		titleElement = $('#csm-title');
+
+		if (!containerElement.length) throw "Can't find widget container in the DOM";
+		if (!titleElement.length) throw "Can't find manager title in the DOM";
 	}
 
 	/**
@@ -171,6 +183,36 @@ redeye.codebaseStatsManager = (function(){
 			prepareWidgets();
 			renderWidgets();
 		});
+	}
+
+	/**
+	 * Loop through all configured screens
+	 */
+	function startScreenSwitcher()
+	{
+		logDebug('Starting Screen Switcher');
+
+		var numberOfScreens = screens.length;
+		var index = 1;
+		prepareScreen(screens[index-1]);
+		var screenLoop = setInterval(function(){
+
+			prepareScreen(screens[index]);
+			index++;
+
+			if (index >= numberOfScreens) index = 0;
+
+		}, 100000);
+	}
+
+	function prepareScreen(screen)
+	{
+		createWidgetContainer();
+		containerElement.html('').animate({left:'250px'});
+		titleElement.html(screen.name);
+		$.each(screen.widgets, function(key, item){
+			context.addWidget(context.CodebaseWidget(item));
+		})
 	}
 
 	/**
