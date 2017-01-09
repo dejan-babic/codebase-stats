@@ -66,12 +66,23 @@
 			},
 
 			/**
-			 * Returns html to populate the widget box
-			 * @returns {string}
+			 * Render DOM with latest html from endpoint
 			 */
 			render: function()
 			{
-				return  this.html ? this.html : 'Activity Widget';
+				if(this.domBox){
+					var html = this.html ? this.html : getContainerHtml();
+					this.domBox.html(html);
+				}
+			},
+
+			/**
+			 * Returns html to populate the widget box
+			 * @returns {string}
+			 */
+			getHtml: function()
+			{
+				return  this.html ? this.html : getContainerHtml();
 			}
 		};
 
@@ -89,6 +100,7 @@
 			}).done(function(data){
 				context.rawData = data.raw_data;
 				context.html = data.html;
+				context.render();
 				logDebug('Data was successfully retrieved for /api/activity/all');
 			}).fail(function(data){
 				logDebug('Cant get back data for /api/activity/all');
@@ -117,6 +129,24 @@
 		}
 
 		/**
+		 * Prepare loading container html
+		 * @returns {string}
+		 */
+		function getContainerHtml()
+		{
+			return '<div class="panel panel-primary">' +
+				'<div class="panel-heading">' +
+				'<h3 class="panel-title">Codebase Activity</h3>' +
+				'</div>' +
+				'<div class="panel-body">' +
+					'<br><div class="progress progress-striped active">' +
+						'<div class="progress-bar" style="width: 100%"></div>' +
+					'</div>' +
+				'</div>' +
+				'</div>'
+		}
+
+		/**
 		 * Based on the set debug flag outputs the message to the console
 		 * @param message
 		 */
@@ -130,6 +160,6 @@
 	// Ready-set-go
 	$(document).ready(function() {
 		// Add widget to manager
-		redeye.codebaseStatsManager.addWidget(ActivityWidget.getID(), ActivityWidget);
+		redeye.codebaseStatsManager.addWidget(ActivityWidget);
 	});
 })();
