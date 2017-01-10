@@ -18,7 +18,7 @@ redeye.codebaseStatsManager = (function(){
 	var containerElement;
 
 	// Flags
-	var debug = false;
+	var debug = true;
 	var initialized = false;
 
 	// Parameters
@@ -71,6 +71,12 @@ redeye.codebaseStatsManager = (function(){
 		popWidget: function(id)
 		{
 			if(widgets[id]) widgets[id] = null;
+		},
+
+		changeProject: function(id, project)
+		{
+			var widget_change = widgets[id];
+			widget_change.changeProject(project);
 		}
 	};
 
@@ -113,6 +119,7 @@ redeye.codebaseStatsManager = (function(){
 	 */
 	function prepareWidgets()
 	{
+		console.log(widgets);
 		$.each(widgets, function(){
 			if (this.notInitialized()) this.init();
 		});

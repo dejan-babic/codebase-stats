@@ -11,8 +11,16 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
+
     <script src="{{ asset('js/codebase-stats-manager.js') }}"></script>
     <script src="{{ asset('js/codebase-stats-widget-activity.js') }}"></script>
+    <script src="{{ asset('js/codebase-tickets-widget-activity.js') }}"></script>
+    <script src="{{ asset('js/codebase-tickets-stats-widget.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
 </head>
 <body>
 <div class="container-fluid">

@@ -13,6 +13,8 @@ class ActivityController extends Controller
      */
     public function all()
     {
+        $today = Carbon::today('Europe/London')->toIso8601String();
+        $query = array('raw' => true, 'since' => $today);
         $raw_data = $this->sendRequest('GET', '/activity');
         $html = view('activity.all')->with('events', $raw_data->event)->render();
         return response()->json([
