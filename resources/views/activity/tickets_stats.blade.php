@@ -10,8 +10,8 @@
 </div>
 
 <script>
-     var my_obj_data = <?php echo $statistics; ?>;
-     var template = [
+     var obj_data = <?php echo $statistics; ?>;
+     /*var template = [
          {"time": "2017-01-10 00:00:00", "tickets": 20, "solved": 17},
          {"time": "2017-01-10 01:00:00", "tickets": 17, "solved": 17},
          {"time": "2017-01-10 02:00:00", "tickets": 20, "solved": 18},
@@ -36,16 +36,19 @@
          {"time": "2017-01-10 21:00:00", "tickets": 17, "solved": 17},
          {"time": "2017-01-10 22:00:00", "tickets": 20, "solved": 19},
          {"time": "2017-01-10 23:00:00", "tickets": 21, "solved": 19}
-     ];
+     ];*/
 
      var options = {
          element: 'redeyechart',
-         data: template,
+         data: obj_data,
          xkey: 'time',
-         ykeys: ['tickets', 'solved'],
+         //ykeys: ['tickets', 'solved'],
+         ykeys: ['tickets'],
          xLabels: 'hour',
-         labels: ['Tickets Raised', 'Tickets Solved'],
-         lineColors:['lightgreen','gray']
+         //labels: ['Tickets Raised', 'Tickets Solved'],
+         labels: ['Tickets Raised'],
+         //lineColors:['lightgreen','gray']
+         lineColors:['lightgreen']
      };
     var stats_obj = new Morris.Line(options);
 </script>

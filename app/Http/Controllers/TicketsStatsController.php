@@ -10,24 +10,26 @@ namespace App\Http\Controllers;
 
 
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class TicketsStatsController extends Controller
 {
     public $hours = 24;
     public $statistics = array();
-    private $file = 'stats_day_data.txt';
+    public $store_key = 'ticket_chart_values';
     public $tickets_no = null;
 
     public function statistics($project){
         $today = Carbon::today('Europe/London');
         $now = Carbon::now('Europe/London');
         $diff = $now->diffInHours($today);
+
         $query = array('query' => 'sort:created_at order:desc');
         $raw_data = $this->sendRequest('GET', "{$project}/tickets", $query);
+
         $this->tickets_no = count($raw_data);
-        $this->generateStats($diff, $now->toDateTimeString());
-        $this->createFile();
-        $this->writeToFile();
+        $this->generateStats($diff, $now);
+        $this->storeChartValues();
 
         $html = view('activity.tickets_stats')->with(['statistics' => json_encode(array_values($this->statistics))])->render();
 
@@ -38,14 +40,9 @@ class TicketsStatsController extends Controller
     }
 
     public function generateStats($hour, $now){
-            $this->statistics[$hour] = array('time' => $now, 'tickets' => $this->tickets_no);
-    }
-
-
-    public  function createFile()
-    {
-        touch($this->file);
-        chmod($this->file, 0640);
+            $now->minute = 0;
+            $now->second = 0;
+            $this->statistics[$hour] = array('time' => $now->toDateTimeString(), 'tickets' => $this->tickets_no);
     }
 
     public function generateDayFile(){
@@ -58,18 +55,15 @@ class TicketsStatsController extends Controller
         return $hours_of_day;
     }
 
-    public function writeToFile(){
-        $file = file_get_contents($this->file);
-        if($file !== false){
-            if(filesize($this->file) == 0){
-                $day_array = $this->generateDayFile();
-                file_put_contents($this->file, json_encode($day_array));
-                $file = file_get_contents($this->file);
-            }
-            $stats_arr = json_decode($file, true);
-            $this->statistics = array_replace($stats_arr, $this->statistics);
-            file_put_contents($this->file, json_encode($this->statistics));
+
+    public function storeChartValues(){
+        if(!Cache::has($this->store_key)) {
+            $day_array = $this->generateDayFile();
+            Cache::forever($this->store_key, json_encode($day_array));
         }
+        $stats_arr = json_decode(Cache::get($this->store_key), true);
+        $this->statistics = array_replace($stats_arr, $this->statistics);
+        Cache::forever($this->store_key, json_encode($this->statistics));
         return true;
     }
 }
