@@ -3,13 +3,14 @@
 	if(!redeye.codebaseStatsManager) return;
 
 	/**
-	 * Widget that wraps a call to '/api/activity/all' endpoint.
-	 * The render method returns html for the manager to
-	 * display.
-	 * @type {{rawData, init, getID, notInitialized, render}}
+	 * Widget that wraps a call to backend endpoints. The render
+	 * method returns html for the manager to display.
+	 * @param options
+	 * @returns {{rawData: null, html: null, init: init, getID: getID, notInitialized: notInitialized, render: render, getHtml: getHtml}}
+	 * @constructor
 	 */
-	// function CodebaseWidget(project, apiEndpoint, refreshRate){
 	redeye.codebaseStatsManager.CodebaseWidget = function(options){
+
 		// Helpers
 		var context;
 		var interval;
@@ -45,6 +46,8 @@
 					isInitialized();
 					fetchData(); // Wil set the initialized flag
 					setRefreshData();
+					// Everything finished, flag as initialized
+					initialized = true;
 				}
 				catch (e) {
 					logDebug('[ERROR] ' + e);
@@ -95,7 +98,7 @@
 		 */
 		function fetchData()
 		{
-			logDebug('Getting latest data for /api/activity/all');
+			logDebug('Getting latest data for ' + codebaseEndpoint);
 
 			$.ajax(codebaseEndpoint, {
 				'method': 'GET',
@@ -106,12 +109,10 @@
 				context.rawData = data.raw_data;
 				context.html = data.html;
 				context.render();
-				logDebug('Data was successfully retrieved for /api/activity/all');
+				logDebug('Data was successfully retrieved for ' + codebaseEndpoint);
 			}).fail(function(data){
-				logDebug('Cant get back data for /api/activity/all');
+				logDebug('Cant get back data for ' + codebaseEndpoint);
 			}).always(function(){
-				// Everything finished, flag as initialized
-				initialized = true;
 			})
 		}
 
@@ -157,16 +158,8 @@
 		 */
 		function logDebug(message)
 		{
-			if (debug) console.dir('ActivityWidget:' + message)
+			if (debug) console.dir(widgetName + 'Widget: ' + message)
 		}
 
-	}
-
-	// Ready-set-go
-	$(document).ready(function() {
-		// Add widget to manager
-		// redeye.codebaseStatsManager.addWidget(new CodebaseWidget('API', '/activity/all', 10));
-		// redeye.codebaseStatsManager.addWidget(new CodebaseWidget('Contour', '/activity/all', 10));
-		// redeye.codebaseStatsManager.addWidget(new CodebaseWidget('Contour', '/activity/all', 10));
-	});
+	};
 })();

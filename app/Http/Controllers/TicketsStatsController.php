@@ -11,6 +11,7 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Input;
 
 class TicketsStatsController extends Controller
 {
@@ -19,19 +20,20 @@ class TicketsStatsController extends Controller
     public $store_key = 'ticket_chart_values';
     public $tickets_no = null;
 
-    public function statistics($project){
+    public function statistics(){
+        $project = Input::get('project');
         $today = Carbon::today('Europe/London');
         $now = Carbon::now('Europe/London');
         $diff = $now->diffInHours($today);
 
         $query = array('query' => 'sort:created_at order:desc');
-        $raw_data = $this->sendRequest('GET', "{$project}/tickets", $query);
+        $raw_data = $this->sendRequest('GET', $project.'/tickets', $query);
 
         $this->tickets_no = count($raw_data);
         $this->generateStats($diff, $now);
         $this->storeChartValues();
 
-        $html = view('activity.tickets_stats')->with(['statistics' => json_encode(array_values($this->statistics))])->render();
+        $html = view('tickets.stats')->with(['statistics' => json_encode(array_values($this->statistics))])->render();
 
         return response()->json([
             'raw_data' => $raw_data,

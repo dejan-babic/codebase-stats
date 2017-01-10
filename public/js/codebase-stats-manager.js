@@ -15,6 +15,7 @@ redeye.codebaseStatsManager = (function(){
 	var widgets;
 	var containerElement;
 	var titleElement;
+	var screenLoop;
 
 	// Flags
 	var debug = true;
@@ -22,6 +23,7 @@ redeye.codebaseStatsManager = (function(){
 
 	// Parameters
 	var addWidgetEvent = 'csm-widget-added';
+	var delay = 120000;
 
 	// General config object
 	var screens = [
@@ -33,8 +35,44 @@ redeye.codebaseStatsManager = (function(){
 					name: 'Activity', // Name to display on widget
 					endpoint: '/activity/all', // Endpoint on laravel app (Codebase API Wrapper)
 					project: 'API', // Additional data sent to laravel app (Codebase API Wrapper)
-					refreshRate: 1 // Minutes for widget auto refresh
+					refreshRate: 5 // Minutes for widget auto refresh
+				},
+				{
+					name: 'Ticket Details', // Name to display on widget
+					endpoint: '/tickets/all', // Endpoint on laravel app (Codebase API Wrapper)
+					project: 'API', // Additional data sent to laravel app (Codebase API Wrapper)
+					refreshRate: 5 // Minutes for widget auto refresh
+				},
+				{
+					name: 'Ticket Chart', // Name to display on widget
+					endpoint: '/tickets/stats', // Endpoint on laravel app (Codebase API Wrapper)
+					project: 'API', // Additional data sent to laravel app (Codebase API Wrapper)
+					refreshRate: 5 // Minutes for widget auto refresh
 				}
+			]
+		},
+		{
+			name: 'Contour Project',
+
+			widgets:[
+				{
+					name: 'Activity', // Name to display on widget
+					endpoint: '/activity/all', // Endpoint on laravel app (Codebase API Wrapper)
+					project: 'Contour', // Additional data sent to laravel app (Codebase API Wrapper)
+					refreshRate: 5 // Minutes for widget auto refresh
+				},
+				{
+					name: 'Ticket Details', // Name to display on widget
+					endpoint: '/tickets/all', // Endpoint on laravel app (Codebase API Wrapper)
+					project: 'Contour', // Additional data sent to laravel app (Codebase API Wrapper)
+					refreshRate: 5 // Minutes for widget auto refresh
+				}
+				// {
+				// 	name: 'Ticket Chart', // Name to display on widget
+				// 	endpoint: '/tickets/stats', // Endpoint on laravel app (Codebase API Wrapper)
+				// 	project: 'API', // Additional data sent to laravel app (Codebase API Wrapper)
+				// 	refreshRate: 1 // Minutes for widget auto refresh
+				// }
 			]
 		}
 	];
@@ -59,6 +97,7 @@ redeye.codebaseStatsManager = (function(){
 				wireDOM();
 				registerListeners();
 				startScreenSwitcher();
+				prepareScreen(screens[0]);
 				
 				// Everything finished successfully, flag as initialized
 				initialized = true;
@@ -105,7 +144,6 @@ redeye.codebaseStatsManager = (function(){
 	 */
 	function prepareWidgets()
 	{
-		console.log(widgets);
 		$.each(widgets, function(){
 			if (this.notInitialized()) this.init();
 		});
@@ -175,6 +213,7 @@ redeye.codebaseStatsManager = (function(){
 	function StopManager(e)
 	{
 		logDebug('[ERROR] ' + e);
+		screenLoop.clear();
 		context = null;
 		alert('Codebase Stats Manager needs a restart :(');
 	}
@@ -200,22 +239,25 @@ redeye.codebaseStatsManager = (function(){
 		logDebug('Starting Screen Switcher');
 
 		var numberOfScreens = screens.length;
-		var index = 1;
-		prepareScreen(screens[index-1]);
-		var screenLoop = setInterval(function(){
+		var index = 0;
+
+		screenLoop = setInterval(function(){
 
 			prepareScreen(screens[index]);
 			index++;
 
 			if (index >= numberOfScreens) index = 0;
 
-		}, 100000);
+		}, delay);
 	}
 
 	function prepareScreen(screen)
 	{
+		// TODO don't reset widgets, remove only DOM representation
+		// TODO carefully to avoid widget replication, this is a
+		// TODO temp solution
 		createWidgetContainer();
-		containerElement.html('').animate({left:'250px'});
+		containerElement.html('');
 		titleElement.html(screen.name);
 		$.each(screen.widgets, function(key, item){
 			context.addWidget(context.CodebaseWidget(item));
