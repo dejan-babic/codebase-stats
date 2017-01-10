@@ -13,3 +13,5 @@
 
 Route::get('/', 'CodebaseStatsController@index');
 Route::get('/api/activity/all', 'ActivityController@all');
+Route::get('/api/tickets/{project}', 'TicketsController@all');
+Route::get('/api/tickets/stats/{project}', 'TicketsStatsController@statistics');

@@ -15,7 +15,7 @@
 		var interval;
 
 		// Flags
-		var debug = false;
+		var debug = true;
 		var initialized = false;
 
 		// Params
